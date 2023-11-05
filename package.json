@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/RavelloH/edge-proxy-middleware#readme",
   "dependencies": {
-    "http-proxy-middleware": "^2.0.6"
+    "http-proxy-middleware": "^2.0.6",
+    "url": "^0.11.3"
   }
 }
