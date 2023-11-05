@@ -3,7 +3,7 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-    const {url} = req.query;
+    const { url } = req.query;
  
     if (!url) {
         res.statusCode = 400;
