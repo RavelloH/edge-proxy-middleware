@@ -1,8 +1,11 @@
 {
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/api/edge?url=/$1" }
-  ],
-  "headers": [
-    { "source": "/(.*)", "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }] }
-  ]
+    "rewrites": [{
+        "source": "/", "destination": "/api/edge?url=https://raw.githubusercontent.com/RavelloH/edge-proxy-middleware/main/README.md"
+        "source": "/(.*)", "destination": "/api/edge?url=https://$1"
+    }],
+    "headers": [{
+        "source": "/(.*)", "headers": [{
+            "key": "Access-Control-Allow-Origin", "value": "*"
+        }]
+    }]
 }
