@@ -1,31 +1,25 @@
 {
-    "rewrites":[
+    "rewrites": [{
+        "source": "/",
+        "destination": "/api/edge?url=https://raw.githubusercontent.com/RavelloH/edge-proxy-middleware/main/README.md"
+    },
         {
-            "source":"/",
-            "destination":"/api/edge?url=https://raw.githubusercontent.com/RavelloH/edge-proxy-middleware/main/README.md"
+            "source": "/http/(.*)",
+            "destination": "/api/edge?url=http://$1"
         },
         {
-            "source":"/http:/(.*)",
-            "destination":"/api/edge?url=http://$1"
+            "source": "/https/(.*)",
+            "destination": "/api/edge?url=https://$1"
         },
         {
-            "source":"/https:/(.*)",
-            "destination":"/api/edge?url=https://$1"
-        },
-        {
-            "source":"/(.*)",
-            "destination":"/api/edge?url=http://$1"
-        }
-    ],
-    "headers":[
-        {
-            "source":"/(.*)",
-            "headers":[
-                {
-                    "key":"Access-Control-Allow-Origin",
-                    "value":"*"
-                }
-            ]
-        }
-    ]
+            "source": "/(.*)",
+            "destination": "/api/edge?url=http://$1"
+        }],
+    "headers": [{
+        "source": "/(.*)",
+        "headers": [{
+            "key": "Access-Control-Allow-Origin",
+            "value": "*"
+        }]
+    }]
 }
