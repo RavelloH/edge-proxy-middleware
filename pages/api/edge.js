@@ -2,6 +2,10 @@ import {
     createProxyMiddleware
 } from 'http-proxy-middleware';
 
+export const config = {
+  runtime: 'edge',
+};
+
 export default function handler(req, res) {
     const {
         mainURL
