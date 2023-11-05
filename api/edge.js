@@ -2,11 +2,8 @@ export const config = {
   runtime: 'edge',
 };
 
-import url from 'url';
-
 export default async function handler(req, res) {
-  const queryObject = url.parse(req.url, true).query;
-  const requestedUrl = queryObject.url;
+  const requestedUrl = new URL(req.url, 'http://localhost').searchParams.get('url');
 
   if (!requestedUrl) {
     res.statusCode = 400;
