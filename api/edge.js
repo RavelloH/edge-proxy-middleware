@@ -1,27 +1,25 @@
-import {
-    createProxyMiddleware
-} from 'http-proxy-middleware';
-
 export const config = {
-  runtime: 'edge',
+    runtime: 'edge',
 };
 
-export default function handler(req, res) {
-    const {
-        mainURL
-    } = req.query;
-    return createProxyMiddleware({
-        target: mainURL,
-        changeOrigin: true,
-        selfHandleResponse: true,
-        onProxyRes: (proxyRes, req, res) => {
-            // 设置响应头
-            res.setHeader('Content-Type', proxyRes.headers['content-type']);
-            res.setHeader('Content-Length', proxyRes.headers['content-length']);
+export default async function handler(req, res) {
+    const {url} = req.query;
+ 
+    if (!url) {
+        res.statusCode = 400;
+        res.end('Missing url parameter');
+        return;
+    }
 
-            // 使用流式传输将资源转发给用户
-            proxyRes.pipe(res);
-        },
-    });
+    try {
+        const response = await fetch(url);
+        const contentType = response.headers.get('content-type');
+        res.setHeader('Content-Type', contentType);
 
-}
+        response.body.pipe(res);
+    } catch (err) {
+        console.error(`Error: ${err.message}`);
+        res.statusCode = 500;
+        res.end('Internal Server Error');
+    }
+};
