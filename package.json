@@ -1,0 +1,22 @@
+{
+  "name": "edge-proxy-middleware",
+  "version": "1.0.0",
+  "description": "基于edge-function的代理中间",
+  "main": "api/edge.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RavelloH/edge-proxy-middleware.git"
+  },
+  "author": "RavelloH",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RavelloH/edge-proxy-middleware/issues"
+  },
+  "homepage": "https://github.com/RavelloH/edge-proxy-middleware#readme",
+  "dependencies": {
+    "http-proxy-middleware": "^2.0.6"
+  }
+}
