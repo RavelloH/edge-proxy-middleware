@@ -4,16 +4,16 @@
         "destination": "/api/edge?url=https://raw.githubusercontent.com/RavelloH/edge-proxy-middleware/main/README.md"
     },
         {
-            "source": "/http/(.*)",
+            "source": "/http:/(.*)",
             "destination": "/api/edge?url=http://$1"
         },
         {
-            "source": "/https/(.*)",
+            "source": "/https:/(.*)",
             "destination": "/api/edge?url=https://$1"
         },
         {
-            "source": "/(.*)",
-            "destination": "/api/edge?url=http://$1"
+            "source": "/(.*)?(.*)",
+            "destination": "/api/edge?url=http://$1&$2"
         }],
     "headers": [{
         "source": "/(.*)",
