@@ -1,27 +1,32 @@
-export const config = {
-    runtime: 'edge',
-};
-
-function parseCookies(cookieString) {
-  const cookies = {};
-  if (cookieString) {
-    cookieString.split(';').forEach(cookie => {
-      const parts = cookie.split('=');
-      const name = parts[0].trim();
-      const value = parts[1].trim();
-      cookies[name] = value;
-    });
-  }
-  return cookies;
-}
-
 export default async function handler(req, res) {
-    console.log("url:",req.url)
+    console.log("url:", req.url)
     const targetDomain = parseCookies(req.headers.cookie).root || 'https://localhost';
     
-    // 获取传递的 url 参数，并解码它
-    const requestedUrl = decodeURIComponent(new URL(req.url, 'http://localhost').searchParams.get('url'));
-    console.log("requestedUrl:",requestedUrl)
+    // 解析请求 URL
+    const url = new URL(req.url, 'http://localhost');
+    let requestedUrl = url.searchParams.get('url');
+    
+    // 获取所有查询参数
+    const originalQueryParams = new URLSearchParams(url.search);
+    const newQueryParams = new URLSearchParams();
+    
+    // 复制除了 url 以外的所有查询参数
+    for (const [key, value] of originalQueryParams.entries()) {
+        if (key !== 'url' && key !== 'site') {
+            newQueryParams.append(key, value);
+        }
+    }
+    
+    // 构建完整的请求 URL，包含原始查询参数
+    const queryString = newQueryParams.toString();
+    if (queryString && !requestedUrl.includes('?')) {
+        requestedUrl += '?' + queryString;
+    } else if (queryString) {
+        requestedUrl += '&' + queryString;
+    }
+    
+    requestedUrl = decodeURIComponent(requestedUrl);
+    console.log("requestedUrl:", requestedUrl)
 
     if (!requestedUrl) {
         return new Response('Missing url parameter', {
