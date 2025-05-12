@@ -16,15 +16,18 @@ function parseCookies(cookieString) {
 }
 
 export default async function handler(req, res) {
-    const targetDomain = parseCookies(req.headers.cookie).root || 'https://localhost'
+    const targetDomain = parseCookies(req.headers.cookie).root || 'https://localhost';
     
-    const requestedUrl = new URL(req.url, 'http://localhost').searchParams.get('url');
+    // 使用 decodeURIComponent 解码 URL 参数
+    const requestedUrl = decodeURIComponent(new URL(req.url, 'http://localhost').searchParams.get('url'));
 
     if (!requestedUrl) {
         return new Response('Missing url parameter', {
             status: 400
         });
     }
+
+    console.log('Requested URL:', requestedUrl); // 调试输出
 
     try {
         const response = await fetch(requestedUrl);
