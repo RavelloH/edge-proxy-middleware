@@ -20,10 +20,19 @@ export default async function handler(req, res) {
 
   // 解析cookies
   const cookies = parseCookies(req.headers.get("cookie"));
-  let targetDomain = cookies.site || "https://localhost";
-  console.log("targetDomain:", targetDomain); // 调试输出
-
   const url = new URL(req.url, "http://localhost");
+  
+  // 检查是否有site查询参数，优先使用它
+  const siteParam = url.searchParams.get("site");
+  let targetDomain = siteParam || cookies.site || "https://localhost";
+  
+  // 确保targetDomain是有效的URL格式
+  if (!targetDomain.startsWith('http://') && !targetDomain.startsWith('https://')) {
+    targetDomain = 'https://' + targetDomain;
+  }
+  
+  console.log("targetDomain:", targetDomain);
+
   const path = url.pathname;
   let requestedUrl = url.searchParams.get("url");
   let setCookie = false;
@@ -32,10 +41,11 @@ export default async function handler(req, res) {
   // 如果提供了url参数，尝试解析
   if (requestedUrl) {
     try {
-      // 检查是否是完整URL (有效的协议和域名)
+      // 使用更严格的正则表达式验证是否为有效的完整URL
+      // 确保域名至少包含一个点且不以点结尾
       if (
         requestedUrl.match(
-          /^https?:\/\/[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+(:[0-9]+)?/
+          /^https?:\/\/([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(:[0-9]+)?/
         )
       ) {
         // 是完整URL，提取主机名
@@ -53,9 +63,9 @@ export default async function handler(req, res) {
         if (requestedUrl.startsWith("/")) {
           requestedUrl = requestedUrl.substring(1);
         }
-        requestedUrl = `${targetDomain}/${requestedUrl
-          .replace("https://")
-          .replace("http://", "")}`;
+        // 确保移除任何协议前缀
+        requestedUrl = requestedUrl.replace(/^https?:\/\//, "");
+        requestedUrl = `${targetDomain}/${requestedUrl}`;
       }
     } catch (error) {
       console.error("URL处理错误:", error);
@@ -63,13 +73,13 @@ export default async function handler(req, res) {
       if (requestedUrl.startsWith("/")) {
         requestedUrl = requestedUrl.substring(1);
       }
+      requestedUrl = requestedUrl.replace(/^https?:\/\//, "");
       requestedUrl = `${targetDomain}/${requestedUrl}`;
     }
   } else {
     // 没有URL参数，使用当前路径与targetDomain组合
-    requestedUrl = `${targetDomain}${path
-      .replace("https://")
-      .replace("http://", "")}`;
+    const cleanPath = path.replace(/^https?:\/\//, "");
+    requestedUrl = `${targetDomain}${cleanPath}`;
     console.log("Using path from current URL:", path);
   }
 
