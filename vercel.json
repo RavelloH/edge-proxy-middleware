@@ -1,16 +1,16 @@
 {
     "rewrites": [
         {
-            "source": "/https://:path*",
-            "destination": "/api/edge?url=https://:path*"
+            "source": "/",
+            "destination": "/api/edge?url=https://raw.githubusercontent.com/RavelloH/edge-proxy-middleware/main/README.md"
         },
         {
-            "source": "/http://:path*",
-            "destination": "/api/edge?url=http://:path*"
+            "source": "/(https:|http:)/:site*",
+            "destination": "/api/edge?url=http://:site"
         },
         {
-            "source": "/:path*",
-            "destination": "/api/edge?url=https://:path*"
+            "source": "/:site*",
+            "destination": "/api/edge?url=http://:site"
         }
     ],
     "headers": [
