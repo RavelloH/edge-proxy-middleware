@@ -1,8 +1,16 @@
 {
     "rewrites": [
         {
-            "source": "/:protocol(https|http)://:path*",
-            "destination": "/api/edge?url=:protocol://:path*"
+            "source": "/https://:path*",
+            "destination": "/api/edge?url=https://:path*"
+        },
+        {
+            "source": "/http://:path*",
+            "destination": "/api/edge?url=http://:path*"
+        },
+        {
+            "source": "/:path*",
+            "destination": "/api/edge?url=https://:path*"
         }
     ],
     "headers": [
