@@ -22,6 +22,7 @@ export default async function handler(req, res) {
   // 解析cookies
   const cookies = parseCookies(req.headers.get("cookie"));
   let targetDomain = cookies.site || "https://localhost";
+  console.log("targetDomain:", targetDomain); // 调试输出
 
   const url = new URL(req.url, targetDomain);
 
