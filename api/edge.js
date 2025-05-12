@@ -8,7 +8,7 @@ function parseCookies(cookieString) {
     cookieString.split(";").forEach((cookie) => {
       const parts = cookie.split("=");
       const name = parts[0].trim();
-      const value = parts[1].trim();
+      const value = parts[1] ? parts[1].trim() : "";
       cookies[name] = value;
     });
   }
@@ -17,13 +17,34 @@ function parseCookies(cookieString) {
 
 export default async function handler(req, res) {
   console.log("url:", req.url);
-  const targetDomain =
-    parseCookies(req.headers.cookie).root || "https://localhost";
-
+  
   // 解析请求 URL
   const url = new URL(req.url, "http://localhost");
+  
+  // 解析cookies
+  const cookies = parseCookies(req.headers.get("cookie"));
+  let targetDomain = cookies.site || "https://localhost";
+  
   let requestedUrl = url.searchParams.get("url");
+  let setCookie = false;
+  let hostFromUrl = "";
 
+  // 如果提供了url参数，从中提取主机名
+  if (requestedUrl) {
+    try {
+      const urlObj = new URL(requestedUrl);
+      hostFromUrl = urlObj.protocol + "//" + urlObj.host;
+      
+      // 如果主机名与cookie中的不同，更新cookie
+      if (hostFromUrl !== targetDomain) {
+        targetDomain = hostFromUrl;
+        setCookie = true;
+      }
+    } catch (error) {
+      console.error("无效的URL:", requestedUrl);
+    }
+  }
+  
   // 获取所有查询参数
   const originalQueryParams = new URLSearchParams(url.search);
   const newQueryParams = new URLSearchParams();
@@ -33,6 +54,12 @@ export default async function handler(req, res) {
     if (key !== "url" && key !== "site") {
       newQueryParams.append(key, value);
     }
+  }
+
+  // 如果没有提供url参数，使用cookie中的站点构建URL
+  if (!requestedUrl) {
+    requestedUrl = `${targetDomain}${url.pathname}`;
+    console.log("Using site from cookie:", requestedUrl);
   }
 
   // 构建完整的请求 URL，包含原始查询参数
@@ -47,7 +74,7 @@ export default async function handler(req, res) {
   console.log("requestedUrl:", requestedUrl);
 
   if (!requestedUrl) {
-    return new Response("Missing url parameter", {
+    return new Response("Missing url parameter and no site cookie set", {
       status: 400,
     });
   }
@@ -61,6 +88,11 @@ export default async function handler(req, res) {
     const headers = {
       "Content-Type": contentType,
     };
+    
+    // 如果需要设置cookie，添加到响应头中
+    if (setCookie && hostFromUrl) {
+      headers["Set-Cookie"] = `site=${hostFromUrl}; path=/; max-age=86400; SameSite=Strict`;
+    }
 
     return new Response(response.body, {
       headers,
