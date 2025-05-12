@@ -17,14 +17,14 @@ function parseCookies(cookieString) {
 
 export default async function handler(req, res) {
   console.log("url:", req.url);
-  
+
   // 解析请求 URL
-  const url = new URL(req.url, "http://localhost");
-  
   // 解析cookies
   const cookies = parseCookies(req.headers.get("cookie"));
   let targetDomain = cookies.site || "https://localhost";
-  
+
+  const url = new URL(req.url, targetDomain);
+
   let requestedUrl = url.searchParams.get("url");
   let setCookie = false;
   let hostFromUrl = "";
@@ -34,7 +34,7 @@ export default async function handler(req, res) {
     try {
       const urlObj = new URL(requestedUrl);
       hostFromUrl = urlObj.protocol + "//" + urlObj.host;
-      
+
       // 如果主机名与cookie中的不同，更新cookie
       if (hostFromUrl !== targetDomain) {
         targetDomain = hostFromUrl;
@@ -44,7 +44,7 @@ export default async function handler(req, res) {
       console.error("无效的URL:", requestedUrl);
     }
   }
-  
+
   // 获取所有查询参数
   const originalQueryParams = new URLSearchParams(url.search);
   const newQueryParams = new URLSearchParams();
@@ -88,10 +88,12 @@ export default async function handler(req, res) {
     const headers = {
       "Content-Type": contentType,
     };
-    
+
     // 如果需要设置cookie，添加到响应头中
     if (setCookie && hostFromUrl) {
-      headers["Set-Cookie"] = `site=${hostFromUrl}; path=/; max-age=86400; SameSite=Strict`;
+      headers[
+        "Set-Cookie"
+      ] = `site=${hostFromUrl}; path=/; max-age=86400; SameSite=Strict`;
     }
 
     return new Response(response.body, {
