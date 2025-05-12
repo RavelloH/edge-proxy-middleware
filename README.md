@@ -1,8 +1,16 @@
+<!-- https://github.com/RavelloH/edge-proxy-middleware -->
 # edge-proxy-middleware
-基于edge-function的代理API，全网最强大的代理，可处理任何相对路径。
+基于edge-function的代理API，全网最强大的在线代理，可处理任何相对路径。  
+
+## 特性
+- 基于边缘网络，始终选择距你最近的可用区，延迟低；
+- edge-function无需冷启动，响应快；
+- 可路径完全相同的复制代理任意站点，可处理相对路径；
+- 可使用Vercel部署，免费；
 
 ## 一键部署
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FRavelloH%2Fedge-proxy-middleware)
+
 <!-- https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FRavelloH%2Fedge-proxy-middleware -->
 
 ## 使用示例(以github.com为例)
@@ -21,5 +29,7 @@ https://bridge.ravelloh.top/RavelloH <===> https://github.com/RavelloH
 
 ## 注意事项
 **强烈建议** 你自己部署此API。毕竟直接用这个API demo会耗我的Vercel额度，使用量多时不保证可用性。  
-Cookie一天后过期，届时请重新输入主机名。
+Cookie一天后过期，届时请重新输入主机名。  
+尽管架构上完全可以用于代理任意网站，但本API的主要用途是代理API。  
+部分网站可能会将edge function的服务器IP段视为爬虫而造成访问异常。
 
