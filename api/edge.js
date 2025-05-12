@@ -32,38 +32,42 @@ export default async function handler(req, res) {
   // 如果提供了url参数，尝试解析
   if (requestedUrl) {
     try {
-      // 检查是否以http或https开头，视为完整URL
-      if (requestedUrl.startsWith("http://") || requestedUrl.startsWith("https://")) {
+      // 检查是否是完整URL (有效的协议和域名)
+      if (
+        requestedUrl.match(
+          /^https?:\/\/[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+(:[0-9]+)?/
+        )
+      ) {
         // 是完整URL，提取主机名
         const urlObj = new URL(requestedUrl);
         hostFromUrl = urlObj.protocol + "//" + urlObj.host;
-        
+
         // 如果主机名与cookie中的不同，更新cookie
         if (hostFromUrl !== targetDomain) {
           targetDomain = hostFromUrl;
           setCookie = true;
         }
       } else {
-        // 是相对路径，使用targetDomain组合
-        // 确保路径格式正确
+        // 是相对路径或不完整URL，使用targetDomain组合
+        // 移除开头的斜杠以避免重复
         if (requestedUrl.startsWith("/")) {
-          requestedUrl = `${targetDomain}${requestedUrl}`;
-        } else {
-          requestedUrl = `${targetDomain}/${requestedUrl}`;
+          requestedUrl = requestedUrl.substring(1);
         }
+        requestedUrl = `${targetDomain}/${requestedUrl}`;
       }
     } catch (error) {
       console.error("URL处理错误:", error);
-      // 出错时尝试作为相对路径处理
+      // 如果URL解析出错，尝试作为相对路径处理
       if (requestedUrl.startsWith("/")) {
-        requestedUrl = `${targetDomain}${requestedUrl}`;
-      } else {
-        requestedUrl = `${targetDomain}/${requestedUrl}`;
+        requestedUrl = requestedUrl.substring(1);
       }
+      requestedUrl = `${targetDomain}/${requestedUrl}`;
     }
   } else {
     // 没有URL参数，使用当前路径与targetDomain组合
-    requestedUrl = `${targetDomain}${path}`;
+    requestedUrl = `${targetDomain}${path
+      .replace("https://")
+      .replace("http://", "")}`;
     console.log("Using path from current URL:", path);
   }
 
@@ -117,8 +121,25 @@ export default async function handler(req, res) {
     });
   } catch (err) {
     console.error(`Error: ${err.message}`);
-    return new Response("Internal Server Error", {
-      status: 500,
-    });
+    // 返回更详细的错误处理
+
+    //   return new Response("Internal Server Error", {
+    //     status: 500,
+    //   });
+    return new Response(
+      JSON.stringify({
+        error: "Internal Server Error",
+        message: err.message,
+        cookies: cookies,
+        targetDomain: targetDomain,
+        url: requestedUrl,
+      }),
+      {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
 }
