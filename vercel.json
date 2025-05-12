@@ -6,11 +6,11 @@
         },
         {
             "source": "/(https:|http:)/:site*",
-            "destination": "/api/edge?url=http://:site"
+            "destination": "/api/edge?url=http://:site:query"
         },
         {
             "source": "/:site*",
-            "destination": "/api/edge?url=http://:site"
+            "destination": "/api/edge?url=http://:site:query"
         }
     ],
     "headers": [
