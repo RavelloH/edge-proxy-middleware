@@ -53,7 +53,9 @@ export default async function handler(req, res) {
         if (requestedUrl.startsWith("/")) {
           requestedUrl = requestedUrl.substring(1);
         }
-        requestedUrl = `${targetDomain}/${requestedUrl}`;
+        requestedUrl = `${targetDomain}/${requestedUrl
+          .replace("https://")
+          .replace("http://", "")}`;
       }
     } catch (error) {
       console.error("URL处理错误:", error);
