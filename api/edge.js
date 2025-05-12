@@ -31,6 +31,10 @@ export default async function handler(req, res) {
 
   // 如果提供了url参数，尝试解析
   if (requestedUrl) {
+    if (requestedUrl == "/" && targetDomain == "https://localhost") {
+        // 初次访问，请求并显示文档 https://raw.githubusercontent.com/RavelloH/edge-proxy-middleware/main/README.md
+        requestedUrl = "https://raw.githubusercontent.com/RavelloH/edge-proxy-middleware/main/README.md";
+    }
     try {
       // 检查是否是完整URL (有效的协议和域名)
       // 完整URL需要有效的协议和域名，域名需要包含至少一个点(.)和有效的顶级域名
