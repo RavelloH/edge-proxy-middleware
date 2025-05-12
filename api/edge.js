@@ -1,3 +1,20 @@
+export const config = {
+    runtime: 'edge',
+};
+
+function parseCookies(cookieString) {
+    const cookies = {};
+    if (cookieString) {
+      cookieString.split(';').forEach(cookie => {
+        const parts = cookie.split('=');
+        const name = parts[0].trim();
+        const value = parts[1].trim();
+        cookies[name] = value;
+      });
+    }
+    return cookies;
+  }
+
 export default async function handler(req, res) {
     console.log("url:", req.url)
     const targetDomain = parseCookies(req.headers.cookie).root || 'https://localhost';
