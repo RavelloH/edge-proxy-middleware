@@ -18,32 +18,51 @@ function parseCookies(cookieString) {
 export default async function handler(req, res) {
   console.log("url:", req.url);
 
-  // 解析请求 URL
   // 解析cookies
   const cookies = parseCookies(req.headers.get("cookie"));
   let targetDomain = cookies.site || "https://localhost";
   console.log("targetDomain:", targetDomain); // 调试输出
 
-  const url = new URL(req.url, targetDomain);
-
+  const url = new URL(req.url, "http://localhost");
+  const path = url.pathname;
   let requestedUrl = url.searchParams.get("url");
   let setCookie = false;
   let hostFromUrl = "";
 
-  // 如果提供了url参数，从中提取主机名
+  // 如果提供了url参数，尝试解析
   if (requestedUrl) {
     try {
-      const urlObj = new URL(requestedUrl);
-      hostFromUrl = urlObj.protocol + "//" + urlObj.host;
-
-      // 如果主机名与cookie中的不同，更新cookie
-      if (hostFromUrl !== targetDomain) {
-        targetDomain = hostFromUrl;
-        setCookie = true;
+      // 检查是否是完整URL (有效的协议和域名)
+      if (requestedUrl.match(/^https?:\/\/[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+(:[0-9]+)?/)) {
+        // 是完整URL，提取主机名
+        const urlObj = new URL(requestedUrl);
+        hostFromUrl = urlObj.protocol + "//" + urlObj.host;
+        
+        // 如果主机名与cookie中的不同，更新cookie
+        if (hostFromUrl !== targetDomain) {
+          targetDomain = hostFromUrl;
+          setCookie = true;
+        }
+      } else {
+        // 是相对路径或不完整URL，使用targetDomain组合
+        // 移除开头的斜杠以避免重复
+        if (requestedUrl.startsWith("/")) {
+          requestedUrl = requestedUrl.substring(1);
+        }
+        requestedUrl = `${targetDomain}/${requestedUrl}`;
       }
     } catch (error) {
-      console.error("无效的URL:", requestedUrl);
+      console.error("URL处理错误:", error);
+      // 如果URL解析出错，尝试作为相对路径处理
+      if (requestedUrl.startsWith("/")) {
+        requestedUrl = requestedUrl.substring(1);
+      }
+      requestedUrl = `${targetDomain}/${requestedUrl}`;
     }
+  } else {
+    // 没有URL参数，使用当前路径与targetDomain组合
+    requestedUrl = `${targetDomain}${path}`;
+    console.log("Using path from current URL:", path);
   }
 
   // 获取所有查询参数
@@ -55,12 +74,6 @@ export default async function handler(req, res) {
     if (key !== "url" && key !== "site") {
       newQueryParams.append(key, value);
     }
-  }
-
-  // 如果没有提供url参数，使用cookie中的站点构建URL
-  if (!requestedUrl) {
-    requestedUrl = `${targetDomain}${url.pathname}`;
-    console.log("Using site from cookie:", requestedUrl);
   }
 
   // 构建完整的请求 URL，包含原始查询参数
