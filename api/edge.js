@@ -18,7 +18,7 @@ function parseCookies(cookieString) {
 export default async function handler(req, res) {
     const targetDomain = parseCookies(req.headers.cookie).root || 'https://localhost';
     
-    // 使用 decodeURIComponent 解码 URL 参数
+    // 获取传递的 url 参数，并解码它
     const requestedUrl = decodeURIComponent(new URL(req.url, 'http://localhost').searchParams.get('url'));
 
     if (!requestedUrl) {
@@ -30,6 +30,7 @@ export default async function handler(req, res) {
     console.log('Requested URL:', requestedUrl); // 调试输出
 
     try {
+        // 通过解码后的 URL 发起请求
         const response = await fetch(requestedUrl);
         const contentType = response.headers.get('content-type');
         const headers = {
