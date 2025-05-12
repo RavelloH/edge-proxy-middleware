@@ -18,15 +18,31 @@ function parseCookies(cookieString) {
 
 // 处理请求
 export default async function handler(req) {
-    const targetDomain = parseCookies(req.headers.cookie).root || 'https://localhost';
+    const url = new URL(req.url);
     
-    // 解析原始请求的 URL，确保查询参数被正确转发
-    const requestedUrl = new URL(req.url, 'http://localhost');
+    // 当访问 localhost?proxySite=xxx 时，设置 cookie
+    if (url.searchParams.has('proxySite')) {
+        const proxySite = url.searchParams.get('proxySite');
+        
+        // 设置 cookie，并返回 200 响应
+        const headers = new Headers();
+        headers.set('Set-Cookie', `proxySite=${proxySite}; Path=/; HttpOnly; Max-Age=31536000;`);
+        return new Response(`Proxy site set to ${proxySite}`, {
+            status: 200,
+            headers,
+        });
+    }
+
+    // 从 cookie 中获取代理目标
+    const cookies = parseCookies(req.headers.get('cookie'));
+    const targetDomain = cookies.proxySite || 'https://localhost';
+
+    // 获取请求的 url
+    const requestedUrl = new URL(req.url);
     const urlWithParams = requestedUrl.search
         ? `${targetDomain}${requestedUrl.pathname}${requestedUrl.search}`
         : `${targetDomain}${requestedUrl.pathname}`;
 
-    // 如果缺少 URL 参数
     if (!requestedUrl) {
         return new Response('Missing url parameter', {
             status: 400,
@@ -34,7 +50,6 @@ export default async function handler(req) {
     }
 
     try {
-        // 发起请求到目标 API
         const response = await fetch(urlWithParams, {
             method: req.method, // 保留原请求方法
             headers: {
@@ -54,7 +69,6 @@ export default async function handler(req) {
             responseBody = response.body;
         }
 
-        // 返回转发的响应
         return new Response(responseBody, {
             status: response.status, // 保留目标响应的状态码
             headers: {
@@ -63,7 +77,6 @@ export default async function handler(req) {
             },
         });
     } catch (err) {
-        // 捕获错误并输出日志
         console.error(`Error: ${err.message}`);
         return new Response('Internal Server Error', {
             status: 500,
