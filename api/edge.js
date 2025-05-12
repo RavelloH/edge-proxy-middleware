@@ -32,8 +32,8 @@ export default async function handler(req, res) {
   // 如果提供了url参数，尝试解析
   if (requestedUrl) {
     try {
-      // 检查是否是完整URL (有效的协议和域名)
-      if (requestedUrl.match(/^https?:\/\/[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+(:[0-9]+)?/)) {
+      // 检查是否以http或https开头，视为完整URL
+      if (requestedUrl.startsWith("http://") || requestedUrl.startsWith("https://")) {
         // 是完整URL，提取主机名
         const urlObj = new URL(requestedUrl);
         hostFromUrl = urlObj.protocol + "//" + urlObj.host;
@@ -44,20 +44,22 @@ export default async function handler(req, res) {
           setCookie = true;
         }
       } else {
-        // 是相对路径或不完整URL，使用targetDomain组合
-        // 移除开头的斜杠以避免重复
+        // 是相对路径，使用targetDomain组合
+        // 确保路径格式正确
         if (requestedUrl.startsWith("/")) {
-          requestedUrl = requestedUrl.substring(1);
+          requestedUrl = `${targetDomain}${requestedUrl}`;
+        } else {
+          requestedUrl = `${targetDomain}/${requestedUrl}`;
         }
-        requestedUrl = `${targetDomain}/${requestedUrl}`;
       }
     } catch (error) {
       console.error("URL处理错误:", error);
-      // 如果URL解析出错，尝试作为相对路径处理
+      // 出错时尝试作为相对路径处理
       if (requestedUrl.startsWith("/")) {
-        requestedUrl = requestedUrl.substring(1);
+        requestedUrl = `${targetDomain}${requestedUrl}`;
+      } else {
+        requestedUrl = `${targetDomain}/${requestedUrl}`;
       }
-      requestedUrl = `${targetDomain}/${requestedUrl}`;
     }
   } else {
     // 没有URL参数，使用当前路径与targetDomain组合
