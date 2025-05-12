@@ -16,10 +16,12 @@ function parseCookies(cookieString) {
 }
 
 export default async function handler(req, res) {
+    console.log("url:",req.url)
     const targetDomain = parseCookies(req.headers.cookie).root || 'https://localhost';
     
     // 获取传递的 url 参数，并解码它
     const requestedUrl = decodeURIComponent(new URL(req.url, 'http://localhost').searchParams.get('url'));
+    console.log("requestedUrl:",requestedUrl)
 
     if (!requestedUrl) {
         return new Response('Missing url parameter', {
