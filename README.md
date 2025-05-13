@@ -13,11 +13,14 @@
 
 <!-- https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FRavelloH%2Fedge-proxy-middleware -->
 
-## 使用示例(以github.com为例)
+## 使用示例(以github.com为例)  
+简单来说，在要代理的域名前加上此API的地址即可。  
+
 https://bridge.ravelloh.top/github.com  
+https://bridge.ravelloh.top/https://github.com  
 https://bridge.ravelloh.top/api/edge?url=https://github.com
 
-通过以上两种格式之一访问后，会自动识别到代理主机名`github.com` ，并写入到cookie:site中。
+通过以上三种格式之一访问后，会自动识别到代理主机名`github.com` ，并写入到cookie:site中。
 
 之后路径将与`github.com`完全对应,即:
 ```
