@@ -1,0 +1,6 @@
+name = "edge-proxy-middleware"
+main = "cloudflare/worker.js"
+compatibility_date = "2025-05-31"
+
+[env.production]
+name = "edge-proxy-middleware"

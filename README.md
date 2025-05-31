@@ -6,12 +6,15 @@
 - 基于边缘网络，始终选择距你最近的可用区，延迟低；
 - edge-function无需冷启动，响应快；
 - 可路径完全相同的复制代理任意站点，可处理相对路径；
-- 可使用Vercel部署，免费；
+- 可使用Vercel或Cloudflare Workers部署，免费；
 
 ## 一键部署
+
+### Vercel部署
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FRavelloH%2Fedge-proxy-middleware)
 
-<!-- https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FRavelloH%2Fedge-proxy-middleware -->
+### Cloudflare Workers部署
+复制`cloudflare/worker.js`文件内容到Cloudflare Workers编辑器中即可。
 
 ## 使用示例(以github.com为例)  
 简单来说，在要代理的域名前加上此API的地址即可。  
