@@ -17,6 +17,12 @@ function parseCookies(cookieString) {
 
 export default async function handler(req) {
   console.log("url:", req.url);
+  if (req.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: getCorsHeaders(),
+    });
+  }
 
   const cookies = parseCookies(req.headers.get("cookie"));
   let targetDomain = cookies.site || "https://localhost";
